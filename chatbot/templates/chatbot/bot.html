@@ -1,0 +1,56 @@
+﻿{% load staticfiles %}
+<!doctype html>
+<html>
+  <head>
+    <title>고객상품팀 Chatbot</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>        
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/loading.js' %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#wrapper').OEngine({
+                width   :  '100%',
+                //height  :  '560px',
+                //bgColor :  '#efefef',
+                //ctitle  :  "Aibril Chatbot",
+                firstMsg  :  "마마고",
+                service_id : "b6e931b1-25b5-49ac-9b5b-fff5af036940"            
+            });
+        });
+    </script>
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/loading.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min_jy.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/non-responsive.css' %}">    
+  </head>
+  <body>
+    <div id="sop_wrapper">
+        <table>
+            <tr class="sop_wrapper_tr">
+                <td><span class="sop_table_label">사업구분</span></td>
+                <td>
+                    <span id="sop_op_biz_cl" class="sop_table_value">
+                        <label><input type="radio" name="search_type" value="SWING" checked />SWING</label>
+                        <label><input type="radio" name="search_type" value="TSWING" />T-SWING</label>
+                        <label><input type="radio" name="search_type" value="BSWING" />B-SWING</label>
+                    </span>
+                </td>
+            </tr>
+            <tr class="sop_wrapper_tr">
+                <td><span class="sop_table_label">처리담당세부그룹</span></td>
+                <td><span id="sop_op_grp"  class="sop_table_value"></span></td>
+            </tr>
+            <tr class="sop_wrapper_tr">
+                <td><span class="sop_table_label">담당자</span></td>
+                <td><span id="sop_op_user"  class="sop_table_value"></span></td>
+            </tr>
+        </table>    
+    </div>    
+    <div id="wrapper" class="toggled"></div>    
+  </body>
+</html>
