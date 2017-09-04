@@ -1,15 +1,19 @@
-﻿var chatbot_service_id = {};
-chatbot_service_id.mamago = 'bbe302ff-a73a-4ee5-8caf-8e5e411c9306';
-chatbot_service_id.soq    = 'fff7162d-2056-4221-bd12-6d53cc2dcb41';
-chatbot_service_id.prm    = '';
+﻿var conv_dict = {
+    'default': {
+        'service_id':'',
+        'prefix':''},
+    'mamago':{
+        "service_id":"bbe302ff-a73a-4ee5-8caf-8e5e411c9306",
+        "prefix":"[마마고] "},
+    'soq':{
+        'service_id':'fff7162d-2056-4221-bd12-6d53cc2dcb41',
+        'prefix':'[SOQ] '},
+    'prm':{
+        'service_id':'bbe302ff-a73a-4ee5-8caf-8e5e411c9306',
+        'prefix':'[PRM] '}
+};
 
-var chatbot_prefix = {};
-chatbot_prefix.default = '';
-chatbot_prefix.mamago = '[마마고] ';
-chatbot_prefix.soq = '[SOQ] ';
-chatbot_prefix.prm = '[PRM] ';
-
-var sop_classifier_threshold = 0.6;
+var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 최소값
 
 (function($) {
     $.fn.extend({
@@ -94,7 +98,7 @@ var sop_classifier_threshold = 0.6;
                 if (currentMode == 'default')
                     fnSend_nlc();
                 else
-                    fnSend_conv(chatbot_service_id[currentMode], false);
+                    fnSend_conv(conv_dict[currentMode].service_id, false);
             }
         }
     }
@@ -143,7 +147,7 @@ function get_html_for_isac(msg) {
         minute: "2-digit"
     };
     
-    msg = chatbot_prefix[currentMode] + msg
+    msg = conv_dict[currentMode].prefix + msg
     
     var timeStamp = time.toLocaleTimeString("en-US", option);
     var html_obj  = "<div class='talk_isac'>";
@@ -229,7 +233,7 @@ function fnSend_nlc() {
             //$("#style-3").append(get_html_for_isac(s))
             
             currentMode = result.mode;
-            fnSend_conv(chatbot_service_id[currentMode], true)
+            fnSend_conv(conv_dict[currentMode].service_id, true)
         },
         complete: function() {
             $('#sidebar-wrapper').loading('stop');
@@ -315,15 +319,22 @@ function bot_command(cmd) {
     var result = '';
     console.log('[bot_command] cmd : ' + cmd);
     
-    switch (cmd) {
-        case 'mode':
-            result = currentMode;
-            break;
-        default:
-            result = '정의되지 않은 명령어입니다.';
-            break;
-    }
+    var args = cmd.split(" ");
     
+    if (args[0] == 'mode') {
+        if (args[1].length == 0) {
+            result = currentMode;
+        } else if (args[1] == 'default' ||
+                   args[1] == 'soq' ||
+                   args[1] == 'prm' ||
+                   args[1] == 'mamago') {
+            currentMode = args[1];
+            result = currentMode;
+        } else {
+            result = 'undefined mode';
+        }
+    }
+        
     result = '[cmd] ' + result
     $("#style-3").append(get_html_for_isac(result))
     return
