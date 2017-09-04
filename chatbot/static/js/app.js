@@ -3,6 +3,12 @@ chatbot_service_id.mamago = 'bbe302ff-a73a-4ee5-8caf-8e5e411c9306';
 chatbot_service_id.soq    = 'fff7162d-2056-4221-bd12-6d53cc2dcb41';
 chatbot_service_id.prm    = '';
 
+var chatbot_prefix = {};
+chatbot_prefix.default = '';
+chatbot_prefix.mamago = '[마마고] ';
+chatbot_prefix.soq = '[SOQ] ';
+chatbot_prefix.prm = '[PRM] ';
+
 var sop_classifier_threshold = 0.6;
 
 (function($) {
@@ -88,7 +94,7 @@ var sop_classifier_threshold = 0.6;
                 if (currentMode == 'default')
                     fnSend_nlc();
                 else
-                    fnSend_conv(chatbot_service_id[currentMode]);
+                    fnSend_conv(chatbot_service_id[currentMode], false);
             }
         }
     }
@@ -136,6 +142,8 @@ function get_html_for_isac(msg) {
         hour: "2-digit",
         minute: "2-digit"
     };
+    
+    msg = chatbot_prefix[currentMode] + msg
     
     var timeStamp = time.toLocaleTimeString("en-US", option);
     var html_obj  = "<div class='talk_isac'>";
@@ -216,14 +224,16 @@ function fnSend_nlc() {
                 s += result.text;
                 s += "<br />"
             }
-            $("#style-3").append(get_html_for_isac(s))
+            
+            //nlc 태운건 채팅창에 표시하지 않는다
+            //$("#style-3").append(get_html_for_isac(s))
             
             currentMode = result.mode;
+            fnSend_conv(chatbot_service_id[currentMode], true)
         },
         complete: function() {
             $('#sidebar-wrapper').loading('stop');
-            $("#style-3").scrollTop($("#style-3").height())
-        
+            $("#style-3").scrollTop($("#style-3").height())            
         },
         error: function(xhr, status, error) {
             $('#sidebar-wrapper').loading('stop');
@@ -235,8 +245,10 @@ function fnSend_nlc() {
 /********************************************************************
  * 각 업무유형별 Conversation Dialog 진행
  * Chatbot Framework 서비스로 생성된 service_id 필요
+ * flag : nlc에서 바로 호출되었을 경우 true,
+ *        context 유지인 별도 호출일 경우 false
  *******************************************************************/
-function fnSend_conv(service_id) {
+function fnSend_conv(service_id, nlc_flag) {
     var msg = $("#messageText").val();
     var data = {};
     data.api_key = service_id;
@@ -244,7 +256,6 @@ function fnSend_conv(service_id) {
     data.context = JSON.stringify(conText);
     
     if (msg == 'bye') {
-        conText = '';
         currentMode = 'default';
         $("#messageText").val("");
         return
@@ -261,9 +272,12 @@ function fnSend_conv(service_id) {
         dataType: 'json',
         data: data,
         beforeSend: function() {
-            $("#style-3").append(get_html_for_user(msg))            
-            $("#style-3").append("<div class='clear'></div>");
-            $("#messageText").val("");
+            if (!nlc_flag) {
+                $("#style-3").append(get_html_for_user(msg))            
+                $("#style-3").append("<div class='clear'></div>");
+                $("#messageText").val("");
+            }
+            
             $('#sidebar-wrapper').loading('start')
         },
         success: function(result) {
