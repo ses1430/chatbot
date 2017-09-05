@@ -62,6 +62,7 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
         $("#style-3").append("<div class='date_info'></div>");
         $(".date_info").append("<span class='date'>Today , " + convertDate(todaysDate) + "</span>");
 
+        /*
         var talk_obj  = "<div class='talk_isac'>";
             talk_obj += "   <div class='talk_isac_icon'><span class='glyphicon glyphicon-headphones' aria-hidden='true'></span></div>";
             talk_obj += "   <div class='talk_isac_box'>" + firstMsg + "</div>"
@@ -69,6 +70,7 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
             talk_obj += "</div>"
 
         $("#style-3").append(get_html_for_isac(firstMsg))
+        */
 
         $('#sidebar-wrapper').append($('<div/>', {
             id: 'question_wrap',
@@ -79,6 +81,8 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
         //$("#helpdesk").attr('style', 'position:absolute; width:800px; height:900px; left:500px; top:5px;');
         //$("#question_wrap").append("<div class='question_bg_1'><span class='glyphicon glyphicon-comment' aria-hidden='true'></span></div>");
         $("#question_wrap").append("<div class='float question_bg_2'><input type='text' placeholder='질문을 입력하세요' id='messageText'></div>");
+
+        aibril_bot_message(bot_service_id, true, '안녕')
     };
 
     document.onkeypress = function(e) {
@@ -259,12 +263,18 @@ function aibril_front_nlc() {
  * flag : nlc에서 바로 호출되었을 경우 true,
  *        context 유지인 별도 호출일 경우 false
  *******************************************************************/
-function aibril_bot_message(service_id, nlc_flag) {
+function aibril_bot_message(service_id, nlc_flag, message) {
     var msg = $("#messageText").val();
     var data = {};
+
     data.api_key = service_id;
-    data.text = msg;
     data.context = JSON.stringify(conText);
+
+    if (message) {
+        data.text = message
+    } else {
+        data.text = msg
+    }
 
     if (msg == 'bye') {
         currentMode = 'default';
@@ -284,7 +294,7 @@ function aibril_bot_message(service_id, nlc_flag) {
         data: data,
         beforeSend: function() {
             if (!nlc_flag) {
-                $("#style-3").append(get_html_for_user(msg))
+                $("#style-3").append(get_html_for_user(data.text))
                 $("#style-3").append("<div class='clear'></div>");
                 $("#messageText").val("");
             }
