@@ -13,16 +13,13 @@ body {
 #sidebar-wrapper {
 	z-index: 1000;
 	position: fixed;
-	right: 250px;
 	width: 0;
 	height: 100%;
-	margin-right: -250px;
-    background: #2e3951;
+	  background: #fff;
 	-webkit-transition: all 0.5s ease;
 	-moz-transition: all 0.5s ease;
 	-o-transition: all 0.5s ease;
 	transition: all 0.5s ease;
-	border-left:3px solid #1b2335;
 }
 #wrapper.toggled #sidebar-wrapper {
 	width: 483px;
@@ -30,7 +27,7 @@ body {
 #sidebar-wrapper-log {
 	position: absolute;
 	height: 100%;
-	background: #2e3951;
+	background: #fff;
 	-webkit-transition: all 0.5s ease;
 	-moz-transition: all 0.5s ease;
 	-o-transition: all 0.5s ease;

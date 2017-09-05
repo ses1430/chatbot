@@ -417,7 +417,7 @@ float:left padding-right:15px;
 .mt0 {
 	margin-top:0!important;
 }
-/*.btn_service {	
+/*.btn_service {
 	border-top:1px solid#e1e1e8;
 	margin-left:-21px;
 	margin-right:-21px;
@@ -426,7 +426,7 @@ float:left padding-right:15px;
 	border-radius:0 0 3px 3px;
 }*/
 .btn_service {
-	/*height:37px;*/	
+	/*height:37px;*/
 	/*margin-left:-21px;
 	margin-right:-21px;*/
 	vertical-align:bottom;
@@ -702,7 +702,7 @@ con-toggle-area {
 
 #style-3::-webkit-scrollbar-track {
 	/*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);*/
-	background-color: #2e3951;
+	background-color: #fff;
 }
  #style-3::-webkit-scrollbar {
  width: 8px;

@@ -1,3 +1,5 @@
+bot_service_id = 'bbe302ff-a73a-4ee5-8caf-8e5e411c9306'
+
 ﻿var conv_dict = {
     'default': {
         'service_id':'',
@@ -27,7 +29,7 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
             return
         }
     });
-    
+
     $.OEngine = function(elem, options) {
         if (options == undefined) {
             width = '25%';
@@ -39,7 +41,7 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
         } else {
             width = (options.width == undefined) ? '25%' : options.width;
             height = (options.height == undefined) ? '100%' : options.height;
-            bgColor = (options.bgColor == undefined) ? '#2e3951' : options.bgColor;
+            bgColor = (options.bgColor == undefined) ? '#fff' : options.bgColor;
             ctitle = (options.ctitle == undefined) ? "Aibril Chatbot" : options.ctitle;
             firstMsg = (options.firstMsg == undefined) ? '안녕하세요. Aibril Chatbot 입니다.' : options.firstMsg;
             service_id = (options.service_id == undefined) ? '' : options.service_id
@@ -59,26 +61,26 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
         var timeStamp = time.toLocaleTimeString("en-US", option);
         $("#style-3").append("<div class='date_info'></div>");
         $(".date_info").append("<span class='date'>Today , " + convertDate(todaysDate) + "</span>");
-        
+
         var talk_obj  = "<div class='talk_isac'>";
             talk_obj += "   <div class='talk_isac_icon'><span class='glyphicon glyphicon-headphones' aria-hidden='true'></span></div>";
             talk_obj += "   <div class='talk_isac_box'>" + firstMsg + "</div>"
-            talk_obj += "   <div class='talk_isac_time'>" + timeStamp + "</div>"            
+            talk_obj += "   <div class='talk_isac_time'>" + timeStamp + "</div>"
             talk_obj += "</div>"
-        
+
         $("#style-3").append(get_html_for_isac(firstMsg))
-        
+
         $('#sidebar-wrapper').append($('<div/>', {
             id: 'question_wrap',
             text: ''
         }));
-        
-        $("#sidebar-wrapper").append("<div id='helpdesk'></div>");
-        $("#helpdesk").attr('style', 'position:absolute; width:800px; height:900px; left:500px; top:5px;');
-        $("#question_wrap").append("<div class='question_bg_1'><span class='glyphicon glyphicon-comment' aria-hidden='true'></span></div>");
+
+        //$("#sidebar-wrapper").append("<div id='helpdesk'></div>");
+        //$("#helpdesk").attr('style', 'position:absolute; width:800px; height:900px; left:500px; top:5px;');
+        //$("#question_wrap").append("<div class='question_bg_1'><span class='glyphicon glyphicon-comment' aria-hidden='true'></span></div>");
         $("#question_wrap").append("<div class='float question_bg_2'><input type='text' placeholder='질문을 입력하세요' id='messageText'></div>");
     };
-    
+
     document.onkeypress = function(e) {
         var result = "";
         if (typeof(e) != "undefined") {
@@ -86,19 +88,23 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
         } else {
             result = event.keyCode
         }
-        
+
         if (result == 13) {
             var msg = $("#messageText").val();
-            
+
             if (msg.slice(0,1) == ':') {
                 bot_command(msg.slice(1));
             } else {
-                fnSend_sop_nlc();
-                
+                aibril_sop_nlc();
+
+                /*
                 if (currentMode == 'default')
-                    fnSend_nlc();
+                    aibril_front_nlc();
                 else
-                    fnSend_conv(conv_dict[currentMode].service_id, false);
+                    aibril_bot_message(conv_dict[currentMode].service_id, false);
+                */
+
+                aibril_bot_message(bot_service_id, false)
             }
         }
     }
@@ -126,14 +132,14 @@ function get_html_for_user(msg) {
         minute: "2-digit"
     };
     var timeStamp = time.toLocaleTimeString("en-US", option);
-    
+
     var html_obj  = "<div class='talk_user'>";
         html_obj += "   <div class='talk_user_box'>" + msg + "</div>"
         html_obj += "   <div class='talk_user_time'>" + timeStamp + "</div>"
-        html_obj += "   <div class='talk_user_icon'><span class='glyphicon glyphicon-user' aria-hidden='true'></span></div>";
+        //html_obj += "   <div class='talk_user_icon'><span class='glyphicon glyphicon-user' aria-hidden='true'></span></div>";
         html_obj += "</div>"
         html_obj += "<div class='clear'></div>"
-    
+
     return html_obj
 }
 
@@ -146,33 +152,33 @@ function get_html_for_isac(msg) {
         hour: "2-digit",
         minute: "2-digit"
     };
-    
+
     msg = conv_dict[currentMode].prefix + msg
-    
+
     var timeStamp = time.toLocaleTimeString("en-US", option);
     var html_obj  = "<div class='talk_isac'>";
-        html_obj += "   <div class='talk_isac_icon'><span class='glyphicon glyphicon-headphones' aria-hidden='true'></span></div>";
+        //html_obj += "   <div class='talk_isac_icon'><span class='glyphicon glyphicon-headphones' aria-hidden='true'></span></div>";
         html_obj += "   <div class='talk_isac_box'>" + msg + "</div>"
         html_obj += "   <div class='talk_isac_time'>" + timeStamp + "</div>"
         html_obj += "</div>"
         html_obj += "<div class='clear'></div>"
-        
+
     return html_obj
 }
 
 /********************************************************************
  * SOP 분류
  *******************************************************************/
-function fnSend_sop_nlc() {
+function aibril_sop_nlc() {
     var msg = $("#messageText").val();
     var category = $(":input:radio[name=search_type]:checked").val();
-    
+
     var data = {};
     data.text = category + ' ' + msg;
     data.mode = currentMode;
-    
-    console.log("[fnSend_sop_nl] input : " + JSON.stringify(data, null, 2))
-    
+
+    console.log("[aibril_sop_nlc] input : " + JSON.stringify(data, null, 2))
+
     $.ajax({
         type: 'POST',
         crossDomain: true,
@@ -181,8 +187,8 @@ function fnSend_sop_nlc() {
         dataType: 'json',
         data: data,
         success: function(result) {
-            console.log("[fnSend_sop_nl] output : " + JSON.stringify(result, null, 2))
-            
+            console.log("[aibril_sop_nlc] output : " + JSON.stringify(result, null, 2))
+
             // 기준값보다 큰 경우에만 표시해준다.
             if (result.confidence > sop_classifier_threshold) {
                 var s = result.top_class + ' (' + result.confidence.toFixed(2) + ')'
@@ -201,12 +207,12 @@ function fnSend_sop_nlc() {
  * 채팅창 제일 처음 NLC
  * 여기서 어떤 Conversation으로 분기될지 정해짐
  *******************************************************************/
-function fnSend_nlc() {
+function aibril_front_nlc() {
     var msg = $("#messageText").val();
     var data = {};
     data.text = msg;
     data.mode = currentMode;
-    
+
     $.ajax({
         type: 'POST',
         crossDomain: true,
@@ -215,7 +221,7 @@ function fnSend_nlc() {
         dataType: 'json',
         data: data,
         beforeSend: function() {
-            $("#style-3").append(get_html_for_user(msg))            
+            $("#style-3").append(get_html_for_user(msg))
             $("#style-3").append("<div class='clear'></div>");
             $("#messageText").val("");
             $('#sidebar-wrapper').loading('start')
@@ -228,16 +234,17 @@ function fnSend_nlc() {
                 s += result.text;
                 s += "<br />"
             }
-            
+
             //nlc 태운건 채팅창에 표시하지 않는다
             //$("#style-3").append(get_html_for_isac(s))
-            
+
             currentMode = result.mode;
-            fnSend_conv(conv_dict[currentMode].service_id, true)
+            //aibril_bot_message(conv_dict[currentMode].service_id, true)
+            aibril_bot_message(bot_service_id, true)
         },
         complete: function() {
             $('#sidebar-wrapper').loading('stop');
-            $("#style-3").scrollTop($("#style-3").height())            
+            $("#style-3").scrollTop($("#style-3").height())
         },
         error: function(xhr, status, error) {
             $('#sidebar-wrapper').loading('stop');
@@ -252,22 +259,22 @@ function fnSend_nlc() {
  * flag : nlc에서 바로 호출되었을 경우 true,
  *        context 유지인 별도 호출일 경우 false
  *******************************************************************/
-function fnSend_conv(service_id, nlc_flag) {
+function aibril_bot_message(service_id, nlc_flag) {
     var msg = $("#messageText").val();
     var data = {};
     data.api_key = service_id;
     data.text = msg;
     data.context = JSON.stringify(conText);
-    
+
     if (msg == 'bye') {
         currentMode = 'default';
         $("#messageText").val("");
         return
     }
-    
-    console.log('[fnSend_conv] currentMode : ' + currentMode);
-    console.log('[fnSend_conv] input data : ' + JSON.stringify(data, null, 2))
-    
+
+    console.log('[aibril_bot_message] currentMode : ' + currentMode);
+    console.log('[aibril_bot_message] input data : ' + JSON.stringify(data, null, 2))
+
     $.ajax({
         type: 'POST',
         crossDomain: true,
@@ -277,15 +284,15 @@ function fnSend_conv(service_id, nlc_flag) {
         data: data,
         beforeSend: function() {
             if (!nlc_flag) {
-                $("#style-3").append(get_html_for_user(msg))            
+                $("#style-3").append(get_html_for_user(msg))
                 $("#style-3").append("<div class='clear'></div>");
                 $("#messageText").val("");
             }
-            
+
             $('#sidebar-wrapper').loading('start')
         },
         success: function(result) {
-            console.log('[fnSend_conv] result : ' + JSON.stringify(result, null, 2))
+            console.log('[aibril_bot_message] result : ' + JSON.stringify(result, null, 2))
             var s = "";
             if (result.output.text.length == 0) {
                 s = "시나리오 추가가 필요합니다."
@@ -294,9 +301,9 @@ function fnSend_conv(service_id, nlc_flag) {
                 s += "<br />"
             }
             conText = result.context;
-            
+
             //console.log('context : ' + JSON.stringify(conText))
-            
+
             $("#style-3").append(get_html_for_isac(s))
         },
         complete: function() {
@@ -318,9 +325,9 @@ function fnSend_conv(service_id, nlc_flag) {
 function bot_command(cmd) {
     var result = '';
     console.log('[bot_command] cmd : ' + cmd);
-    
+
     var args = cmd.split(" ");
-    
+
     if (args[0] == 'mode') {
         if (args[1].length == 0) {
             result = currentMode;
@@ -334,7 +341,7 @@ function bot_command(cmd) {
             result = 'undefined mode';
         }
     }
-        
+
     result = '[cmd] ' + result
     $("#style-3").append(get_html_for_isac(result))
     return
