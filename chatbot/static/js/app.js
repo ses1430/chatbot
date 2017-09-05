@@ -1,5 +1,27 @@
 bot_service_id = 'bbe302ff-a73a-4ee5-8caf-8e5e411c9306'
 
+workspace_info = {
+  'b732a181-37d7-432c-a4a0-ad955efed07f': {
+      'prefix':'[SOQ]',
+      'name':'SOQ'
+  },
+  '282498e5-e99d-4256-b82a-206035f8c4d0': {
+      'prefix':'[PRM]',
+      'name':'PRM'
+  },
+  '927bf481-fc95-4aef-9c52-0761fbeb0d93': {
+      'prefix':'[마마고]',
+      'name':'MAMAGO'
+  },
+}
+
+var comm_cd_dtl = {
+  'ZORD_C_AAAAA':{
+    '00':'변경',
+    '10':'비연속구간변경'
+  }
+}
+
 ﻿var conv_dict = {
     'default': {
         'service_id':'',
@@ -77,9 +99,6 @@ var sop_classifier_threshold = 0.6; // SOP 처리담당세부그룹 정확도 �
             text: ''
         }));
 
-        //$("#sidebar-wrapper").append("<div id='helpdesk'></div>");
-        //$("#helpdesk").attr('style', 'position:absolute; width:800px; height:900px; left:500px; top:5px;');
-        //$("#question_wrap").append("<div class='question_bg_1'><span class='glyphicon glyphicon-comment' aria-hidden='true'></span></div>");
         $("#question_wrap").append("<div class='float question_bg_2'><input type='text' placeholder='질문을 입력하세요' id='messageText'></div>");
 
         aibril_bot_message(bot_service_id, true, '안녕')
@@ -156,14 +175,44 @@ function get_html_for_isac(msg) {
         hour: "2-digit",
         minute: "2-digit"
     };
+    var agent = ""
 
-    msg = conv_dict[currentMode].prefix + msg
+    try {
+        agent = workspace_info[conText.wrk_info.workspace_id].name
+    } catch(error) {
+    }
 
     var timeStamp = time.toLocaleTimeString("en-US", option);
     var html_obj  = "<div class='talk_isac'>";
         //html_obj += "   <div class='talk_isac_icon'><span class='glyphicon glyphicon-headphones' aria-hidden='true'></span></div>";
         html_obj += "   <div class='talk_isac_box'>" + msg + "</div>"
-        html_obj += "   <div class='talk_isac_time'>" + timeStamp + "</div>"
+        html_obj += "   <div class='talk_isac_time'>" + agent + ' ' + timeStamp + "</div>"
+        html_obj += "</div>"
+        html_obj += "<div class='clear'></div>"
+
+    return html_obj
+}
+
+
+/********************************************************************
+ * 봇 응답 tag 생성
+ *******************************************************************/
+function get_html_for_code(msg) {
+    var time = new Date(Date.now());
+    var option = {
+        hour: "2-digit",
+        minute: "2-digit"
+    };
+    var agent = ""
+
+    try {
+        agent = workspace_info[conText.wrk_info.workspace_id].name
+    } catch(error) {
+    }
+
+    var timeStamp = time.toLocaleTimeString("en-US", option);
+    var html_obj  = "<div class='talk_isac'>";
+        html_obj += "   <div class='talk_code_box'>" + msg + "</div>"
         html_obj += "</div>"
         html_obj += "<div class='clear'></div>"
 
@@ -270,19 +319,22 @@ function aibril_bot_message(service_id, nlc_flag, message) {
     data.api_key = service_id;
     data.context = JSON.stringify(conText);
 
+    // 강제로 메시지를 전달할 경우
     if (message) {
         data.text = message
     } else {
         data.text = msg
     }
 
+    /*
     if (msg == 'bye') {
         currentMode = 'default';
         $("#messageText").val("");
         return
     }
+    */
 
-    console.log('[aibril_bot_message] currentMode : ' + currentMode);
+    //console.log('[aibril_bot_message] currentMode : ' + currentMode);
     console.log('[aibril_bot_message] input data : ' + JSON.stringify(data, null, 2))
 
     $.ajax({
@@ -310,11 +362,18 @@ function aibril_bot_message(service_id, nlc_flag, message) {
                 s += result.output.text;
                 s += "<br />"
             }
+
             conText = result.context;
 
             //console.log('context : ' + JSON.stringify(conText))
 
             $("#style-3").append(get_html_for_isac(s))
+
+            console.log(result.context.comm_cd_id)
+
+            if (result.context.comm_cd_id)
+                $("#style-3").append(get_html_for_code(result.context.comm_cd_id))
+                delete result.context.comm_cd_id
         },
         complete: function() {
             $('#sidebar-wrapper').loading('stop');
@@ -327,6 +386,12 @@ function aibril_bot_message(service_id, nlc_flag, message) {
     })
 }
 
+/********************************************************************
+ * json -> table tag
+ *******************************************************************/
+function get_html_from_json(json_obj) {
+  pass
+}
 
 /********************************************************************
  * bot command
